@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>قرضه‌های Poolam My Money - محاسبه‌کننده قرضه‌</title>
+
+    <!-- ✅ Telegram SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-header {
+            width: 100%;
+            background: linear-gradient(135deg, #0052cc, #2684ff);
+            padding: 20px 20px 40px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: white;
+            width: 92%;
+            max-width: 450px;
+            margin-top: -25px;
+            padding: 30px 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,82,204,0.1);
+            box-sizing: border-box;
+        }
+
+        h2 {
+            font-size: 22px;
+            color: #1a202c;
+            margin: 0 0 5px;
+            text-align: center;
+        }
+
+        .subtext {
+            font-size: 11px;
+            color: #718096;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .slider-section { margin-bottom: 25px; }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+            font-size: 14px;
+            color: #2d3748;
+        }
+
+        .green-text { color: #0052cc; font-weight: bold; }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: #0052cc;
+            margin: 15px 0;
+            height: 6px;
+        }
+
+        .slider-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #a0aec0;
+        }
+
+        .result-container {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            margin: 25px 0;
+        }
+
+        .result-value {
+            color: #0052cc;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .btn-apply {
+            background: linear-gradient(135deg, #0052cc, #2684ff);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,82,204,0.2);
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 11px;
+            color: #a0aec0;
+            margin: 30px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app-header">
+    <span>قرضه‌های Poolam My Money</span>
+    <span>☰</span>
+</div>
+
+<div class="card">
+    <h2>دریافت قرضه‌ فوری</h2>
+    <div class="subtext">تأییدی فوری • شرایط مناسب • مدت زمان آسان و قابل انعطاف</div>
+
+    <div class="slider-section">
+        <div class="slider-header">
+            <span>مقدار قرضه‌</span>
+            <span id="valAmt" class="green-text">AFN 10,000</span>
+        </div>
+        <input type="range" id="amt" min="1000" max="100000" step="1000" value="10000">
+        <div class="slider-footer"><span>AFN 1,000</span><span>AFN 100,000</span></div>
+    </div>
+
+    <div class="slider-section">
+        <div class="slider-header">
+            <span>مدت قرضه‌</span>
+            <span id="valDur" class="green-text">12 ماه</span>
+        </div>
+        <input type="range" id="dur" min="6" max="60" step="6" value="12">
+        <div class="slider-footer"><span>6 ماه</span><span>60 ماه</span></div>
+    </div>
+
+    <div class="result-container">
+        <p style="margin:0; font-size:14px; color:#4a5568">قسط ماهوار</p>
+        <p id="monthly" class="result-value">AFN 983.33</p>
+    </div>
+
+    <button class="btn-apply" onclick="goToPage2()">همین حالا درخواست دهید</button>
+</div>
+
+<div class="footer">© 2026 Poolam My Money Afghanistan. تمامی حقوق محفوظ است.</div>
+
+<script>
+    function update() {
+        const amtEl = document.getElementById('amt');
+        const durEl = document.getElementById('dur');
+
+        if (!amtEl || !durEl) return;
+
+        const amount = Number(amtEl.value) || 0;
+        const duration = Number(durEl.value) || 1;
+
+        document.getElementById('valAmt').innerText = `AFN ${amount.toLocaleString()}`;
+        document.getElementById('valDur').innerText = `${duration} ماه`;
+
+        const monthly = (amount * 1.18) / duration;
+        document.getElementById('monthly').innerText = `AFN ${monthly.toFixed(2)}`;
+    }
+
+    function goToPage2() {
+        const amtEl = document.getElementById('amt');
+        const durEl = document.getElementById('dur');
+
+        if (!amtEl || !durEl) return;
+
+        localStorage.setItem('amount', amtEl.value);
+        localStorage.setItem('loanDuration', durEl.value + " ماه");
+
+        window.location.href = "/page2";
+    }
+
+    window.onload = () => {
+        const tg = window.Telegram?.WebApp;
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        const amtEl = document.getElementById('amt');
+        const durEl = document.getElementById('dur');
+
+        if (amtEl) amtEl.addEventListener('input', update);
+        if (durEl) durEl.addEventListener('input', update);
+
+        update();
+    };
+</script>
+
+</body>
+</html>
