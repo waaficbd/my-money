@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>درخواست قرضه‌ - مرحله اول</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: #f8fafc; margin: 0; display: flex; flex-direction: column; align-items: center; }
+        .nav-header { width: 100%; background: linear-gradient(135deg, #f26522, #0072bc); padding: 15px 20px; color: white; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        .waafi-logo { font-size: 20px; font-weight: bold; }
+        .form-card { background: white; width: 92%; max-width: 480px; margin-top: 25px; padding: 30px 20px; border-radius: 15px; box-shadow: 0 8px 20px rgba(242,101,34,0.12); box-sizing: border-box; }
+        h2 { text-align: center; margin: 0; font-size: 24px; color: #1a202c; font-weight: 600; }
+        .step-info { text-align: center; font-size: 14px; color: #718096; margin: 10px 0 25px; }
+        .progress-box { display: flex; gap: 8px; margin-bottom: 35px; }
+        .bar { height: 4px; flex: 1; background: #e2e8f0; border-radius: 2px; }
+        .active-bar { background: #f26522; }
+        .input-wrap { margin-bottom: 22px; }
+        label { display: block; font-size: 15px; font-weight: 500; margin-bottom: 10px; color: #2d3748; }
+        select, input, textarea { width: 100%; padding: 15px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 16px; box-sizing: border-box; background: #fff; font-family: inherit; }
+        select:focus, input:focus, textarea:focus { border-color: #f26522; outline: none; }
+        .btn-container { margin-top: 30px; display: flex; flex-direction: column; gap: 15px; }
+        .back-btn { background-color: #edf2f7; color: #4a5568; border: 1px solid #cbd5e0; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .next-btn { background: linear-gradient(135deg, #f26522, #ea580c); color: white; border: none; padding: 18px; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(242,101,34,0.25); }
+        .footer-text { text-align: center; font-size: 12px; color: #a0aec0; margin-top: 40px; padding-bottom: 30px; }
+    </style>
+</head>
+
+<body>
+
+<div class="nav-header">
+    <div onclick="goBack()" style="cursor:pointer; font-size:16px;">← برگشت</div>
+    <div class="waafi-logo">Poolam My Money</div>
+    <div style="font-size: 22px;">☰</div>
+</div>
+
+<div class="form-card">
+    <h2>درخواست قرضه‌</h2>
+    <p class="step-info">مرحله ۱ از ۳</p>
+
+    <div class="progress-box">
+        <div class="bar active-bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+
+    <div class="input-wrap">
+        <label>نوع قرضه‌</label>
+        <select id="loanType">
+            <option value="قرضه شخصی" selected>قرضه شخصی</option>
+            <option value="قرضه تجارتی">قرضه تجارتی</option>
+            <option value="قرضه موتر">قرضه موتر</option>
+            <option value="قرضه مسکن">قرضه مسکن</option>
+            <option value="قرضه تحصیلی">قرضه تحصیلی</option>
+        </select>
+    </div>
+
+    <div class="input-wrap">
+        <label>مقدار قرضه‌ (AFN)</label>
+        <input type="text" id="loanAmount" readonly style="background:#f7fafc">
+    </div>
+
+    <div class="input-wrap">
+        <label>مدت قرضه‌</label>
+        <input type="text" id="loanDuration" readonly style="background:#f7fafc">
+    </div>
+
+    <div class="input-wrap">
+        <label>هدف از اخذ قرضه‌</label>
+        <textarea id="loanPurpose" rows="3" placeholder="شما از این مبلغ چگونه استفاده خواهید کرد؟"></textarea>
+    </div>
+
+    <div class="btn-container">
+        <button class="next-btn" onclick="goNext()">مرحله بعدی</button>
+        <button class="back-btn" onclick="goBack()">قبلی</button>
+    </div>
+</div>
+
+<div class="footer-text">© 2026 Poolam My Money Afghanistan. تمامی حقوق محفوظ است.</div>
+
+<script>
+    function goNext() {
+        const purposeEl = document.getElementById('loanPurpose');
+        const typeEl = document.getElementById('loanType');
+        const amountVal = document.getElementById('loanAmount').value;
+        const durationVal = document.getElementById('loanDuration').value;
+
+        if (!purposeEl || !typeEl) return;
+
+        const purpose = purposeEl.value.trim();
+        const type = typeEl.value;
+
+        if (!purpose) {
+            alert("لطفاً هدف از اخذ قرضه‌ را یادداشت نمایید.");
+            return;
+        }
+
+        localStorage.setItem('loanPurpose', purpose);
+        localStorage.setItem('loanType', type);
+
+        const cleanDuration = durationVal.replace(/\D/g, ''); 
+        const cleanAmount = amountVal.replace(/[^0-9.]/g, '');
+
+        const monthly = ((Number(cleanAmount) * 1.18) / Number(cleanDuration)).toFixed(2);
+
+        localStorage.setItem('loan_amount', cleanAmount);
+        localStorage.setItem('loan_term', cleanDuration);
+        localStorage.setItem('monthly_repayment', monthly);
+
+        window.location.href = "page3.html";
+    }
+
+    function goBack() {
+        window.location.href = "index.html";
+    }
+
+    window.onload = () => {
+        const tg = window.Telegram?.WebApp;
+
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+
+        const amountEl = document.getElementById('loanAmount');
+        const durationEl = document.getElementById('loanDuration');
+
+        if (amountEl && durationEl) {
+            const storedAmt = localStorage.getItem('amount') || "10000";
+            const storedDur = localStorage.getItem('loanDuration') || "12 ماه";
+            
+            amountEl.value = `AFN ${Number(storedAmt).toLocaleString()}`;
+            durationEl.value = storedDur;
+        }
+    };
+</script>
+
+</body>
+</html>
